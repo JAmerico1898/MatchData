@@ -68,7 +68,7 @@ if highlight == "Vasco":
         df_min = df.groupby('Order')['min_metric'].min().reset_index()
 
         markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_defensiva:}</div>"
-        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Clube vs Oponentes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Vasco vs Oponentes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
         st.markdown(markdown_1, unsafe_allow_html=True)
         st.markdown("---")
         
@@ -138,11 +138,17 @@ if highlight == "Vasco":
         # Show the plot in Streamlit
         st.pyplot(fig)
         
-#Plotting line chart for all clubs highlighting the selected one        
+        # Plotting line chart for all clubs highlighting the selected one
 
-        markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_defensiva:}</div>"
+        markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_defensiva}</div>"
+        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Vasco vs Demais 19 clubes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
         st.markdown(markdown_1, unsafe_allow_html=True)
         st.markdown("---")
+
+        # Identify the clubs with the maximum and minimum performance in round 16
+        round_16_data = df[df['Order'] == 16]
+        max_team = round_16_data.loc[round_16_data[metrica_defensiva].idxmax()]['Equipe']
+        min_team = round_16_data.loc[round_16_data[metrica_defensiva].idxmin()]['Equipe']
 
         # Plot the data for all teams
         fig, ax = plt.subplots()
@@ -161,28 +167,41 @@ if highlight == "Vasco":
                 ax.fill_between(rounds, 0, team_values, where=(rounds >= 6) & (rounds <= 10), color='lightgreen', alpha=0.3, label='Round 7-10')
                 ax.fill_between(rounds, 0, team_values, where=(rounds >= 10) & (rounds <= 16), color='lightcoral', alpha=0.3, label='Round 11-16')
 
-                # Calculate the position for annotations (10% higher than the maximum value of the y-axis)
-                max_value = max(df_max['max_metric'])
-                min_value = min(df_min['min_metric'])
-                padding = (max_value - min_value) * 0.1
-                ax.set_ylim(bottom=min_value - padding, top=max_value + 2 * padding)
-                
-                annotation_y = max_value + 1.5 * padding
+            elif team == max_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='blue', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='blue', fontsize=9,
+                            ha='left', va='center')
 
-                # Add annotations above the top spine
-                ax.annotate('Paiva 1', xy=(5, annotation_y), xycoords='data',
-                            ha='center', va='bottom', fontsize=10, color='black',
-                            bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='round,pad=0.5'))
-                ax.annotate('Boina', xy=(8, annotation_y), xycoords='data',
-                            ha='center', va='bottom', fontsize=10, color='black',
-                            bbox=dict(facecolor='lightgreen', edgecolor='black', boxstyle='round,pad=0.5'))
-                ax.annotate('Paiva 2', xy=(13, annotation_y), xycoords='data',
-                            ha='center', va='bottom', fontsize=10, color='black',
-                            bbox=dict(facecolor='lightcoral', edgecolor='black', boxstyle='round,pad=0.5'))
-
+            elif team == min_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='green', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='green', fontsize=9,
+                            ha='left', va='center')
             else:
                 ax.plot(rounds, team_values, label=f'{team}', color='grey', linewidth=1, alpha=0.5)
-        
+
+        # Calculate the position for annotations (10% higher than the maximum value of the y-axis)
+        max_value = max(df_max['max_metric'])
+        min_value = min(df_min['min_metric'])
+        padding = (max_value - min_value) * 0.1
+        ax.set_ylim(bottom=min_value - padding, top=max_value + 2 * padding)
+
+        annotation_y = max_value + 1.5 * padding
+
+        # Add annotations above the top spine
+        ax.annotate('Paiva 1', xy=(5, annotation_y), xycoords='data',
+                    ha='center', va='bottom', fontsize=10, color='black',
+                    bbox=dict(facecolor='lightblue', edgecolor='black', boxstyle='round,pad=0.5'))
+        ax.annotate('Boina', xy=(8, annotation_y), xycoords='data',
+                    ha='center', va='bottom', fontsize=10, color='black',
+                    bbox=dict(facecolor='lightgreen', edgecolor='black', boxstyle='round,pad=0.5'))
+        ax.annotate('Paiva 2', xy=(13, annotation_y), xycoords='data',
+                    ha='center', va='bottom', fontsize=10, color='black',
+                    bbox=dict(facecolor='lightcoral', edgecolor='black', boxstyle='round,pad=0.5'))
+
         ax.set_xlabel('Média Móvel de 4 Rodadas', fontdict={'fontsize': 10, 'fontweight': 'bold'})
         ax.set_ylabel(metrica_defensiva, fontdict={'fontsize': 10, 'fontweight': 'bold'})
         ax.tick_params(axis='y', labelsize=9)
@@ -192,6 +211,7 @@ if highlight == "Vasco":
 
         # Show the plot in Streamlit
         st.pyplot(fig)
+
 
 ##################################################################################################################
 ##################################################################################################################
@@ -214,7 +234,7 @@ if highlight == "Vasco":
         df_min = df.groupby('Order')['min_metric'].min().reset_index()
 
         markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_finalização:}</div>"
-        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Clube vs Oponentes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Vasco vs Oponentes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
         st.markdown(markdown_1, unsafe_allow_html=True)
         st.markdown("---")
         
@@ -287,8 +307,14 @@ if highlight == "Vasco":
 #Plotting line chart for all clubs highlighting the selected one        
 
         markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_finalização:}</div>"
+        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Vasco vs Demais 19 clubes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
         st.markdown(markdown_1, unsafe_allow_html=True)
         st.markdown("---")
+
+        # Identify the clubs with the maximum and minimum performance in round 16
+        round_16_data = df[df['Order'] == 16]
+        max_team = round_16_data.loc[round_16_data[metrica_finalização].idxmax()]['Equipe']
+        min_team = round_16_data.loc[round_16_data[metrica_finalização].idxmin()]['Equipe']
 
         # Plot the data for all teams
         fig, ax = plt.subplots()
@@ -307,6 +333,22 @@ if highlight == "Vasco":
                 ax.fill_between(rounds, 0, team_values, where=(rounds >= 4) & (rounds <= 6), color='lightblue', alpha=0.3, label='Round 4-6')
                 ax.fill_between(rounds, 0, team_values, where=(rounds >= 6) & (rounds <= 10), color='lightgreen', alpha=0.3, label='Round 7-10')
                 ax.fill_between(rounds, 0, team_values, where=(rounds >= 10) & (rounds <= 16), color='lightcoral', alpha=0.3, label='Round 11-16')
+
+            elif team == max_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='blue', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='blue', fontsize=9,
+                            ha='left', va='center')
+
+            elif team == min_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='green', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='green', fontsize=9,
+                            ha='left', va='center')
+            else:
+                ax.plot(rounds, team_values, label=f'{team}', color='grey', linewidth=1, alpha=0.5)
 
                 # Calculate the position for annotations (10% higher than the maximum value of the y-axis)
                 max_value = max(df_max['max_metric'])
@@ -327,8 +369,6 @@ if highlight == "Vasco":
                             ha='center', va='bottom', fontsize=10, color='black',
                             bbox=dict(facecolor='lightcoral', edgecolor='black', boxstyle='round,pad=0.5'))
                 
-            else:
-                ax.plot(rounds, team_values, label=f'{team}', color='grey', linewidth=1, alpha=0.5)
         
         ax.set_xlabel('Média Móvel de 4 Rodadas', fontdict={'fontsize': 10, 'fontweight': 'bold'})
         ax.set_ylabel(metrica_finalização, fontdict={'fontsize': 10, 'fontweight': 'bold'})
@@ -361,7 +401,7 @@ if highlight == "Vasco":
         df_min = df.groupby('Order')['min_metric'].min().reset_index()
 
         markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_construção:}</div>"
-        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Clube vs Oponentes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Vasco vs Oponentes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
         st.markdown(markdown_1, unsafe_allow_html=True)
         st.markdown("---")
         
@@ -439,8 +479,14 @@ if highlight == "Vasco":
 #Plotting line chart for all clubs highlighting the selected one        
 
         markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_construção:}</div>"
+        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Vasco vs Demais 19 clubes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
         st.markdown(markdown_1, unsafe_allow_html=True)
         st.markdown("---")
+
+        # Identify the clubs with the maximum and minimum performance in round 16
+        round_16_data = df[df['Order'] == 16]
+        max_team = round_16_data.loc[round_16_data[metrica_construção].idxmax()]['Equipe']
+        min_team = round_16_data.loc[round_16_data[metrica_construção].idxmin()]['Equipe']
 
         # Plot the data for all teams
         fig, ax = plt.subplots()
@@ -459,6 +505,23 @@ if highlight == "Vasco":
                 ax.fill_between(rounds, 0, team_values, where=(rounds >= 4) & (rounds <= 6), color='lightblue', alpha=0.3, label='Round 4-6')
                 ax.fill_between(rounds, 0, team_values, where=(rounds >= 6) & (rounds <= 10), color='lightgreen', alpha=0.3, label='Round 7-10')
                 ax.fill_between(rounds, 0, team_values, where=(rounds >= 10) & (rounds <= 16), color='lightcoral', alpha=0.3, label='Round 11-16')
+
+
+            elif team == max_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='blue', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='blue', fontsize=9,
+                            ha='left', va='center')
+
+            elif team == min_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='green', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='green', fontsize=9,
+                            ha='left', va='center')
+            else:
+                ax.plot(rounds, team_values, label=f'{team}', color='grey', linewidth=1, alpha=0.5)
 
                 # Calculate the position for annotations (10% higher than the maximum value of the y-axis)
                 max_value = max(df_max['max_metric'])
@@ -479,9 +542,6 @@ if highlight == "Vasco":
                             ha='center', va='bottom', fontsize=10, color='black',
                             bbox=dict(facecolor='lightcoral', edgecolor='black', boxstyle='round,pad=0.5'))
 
-            else:
-                ax.plot(rounds, team_values, label=f'{team}', color='grey', linewidth=1, alpha=0.5)
-        
         ax.set_xlabel('Média Móvel de 4 Rodadas', fontdict={'fontsize': 10, 'fontweight': 'bold'})
         ax.set_ylabel(metrica_construção, fontdict={'fontsize': 10, 'fontweight': 'bold'})
         ax.tick_params(axis='y', labelsize=9)
@@ -512,7 +572,7 @@ if highlight == "Vasco":
         df_min = df.groupby('Order')['min_metric'].min().reset_index()
 
         markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_ofensiva:}</div>"
-        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Clube vs Oponentes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Vasco vs Oponentes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
         st.markdown(markdown_1, unsafe_allow_html=True)
         st.markdown("---")
         
@@ -590,8 +650,14 @@ if highlight == "Vasco":
 #Plotting line chart for all clubs highlighting the selected one        
 
         markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_ofensiva:}</div>"
+        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Vasco vs Demais 19 clubes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
         st.markdown(markdown_1, unsafe_allow_html=True)
         st.markdown("---")
+
+        # Identify the clubs with the maximum and minimum performance in round 16
+        round_16_data = df[df['Order'] == 16]
+        max_team = round_16_data.loc[round_16_data[metrica_ofensiva].idxmax()]['Equipe']
+        min_team = round_16_data.loc[round_16_data[metrica_ofensiva].idxmin()]['Equipe']
 
         # Plot the data for all teams
         fig, ax = plt.subplots()
@@ -610,6 +676,22 @@ if highlight == "Vasco":
                 ax.fill_between(rounds, 0, team_values, where=(rounds >= 4) & (rounds <= 6), color='lightblue', alpha=0.3, label='Round 4-6')
                 ax.fill_between(rounds, 0, team_values, where=(rounds >= 6) & (rounds <= 10), color='lightgreen', alpha=0.3, label='Round 7-10')
                 ax.fill_between(rounds, 0, team_values, where=(rounds >= 10) & (rounds <= 16), color='lightcoral', alpha=0.3, label='Round 11-16')
+
+            elif team == max_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='blue', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='blue', fontsize=9,
+                            ha='left', va='center')
+
+            elif team == min_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='green', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='green', fontsize=9,
+                            ha='left', va='center')
+            else:
+                ax.plot(rounds, team_values, label=f'{team}', color='grey', linewidth=1, alpha=0.5)
 
                 # Calculate the position for annotations (10% higher than the maximum value of the y-axis)
                 max_value = max(df_max['max_metric'])
@@ -630,9 +712,6 @@ if highlight == "Vasco":
                             ha='center', va='bottom', fontsize=10, color='black',
                             bbox=dict(facecolor='lightcoral', edgecolor='black', boxstyle='round,pad=0.5'))
                 
-            else:
-                ax.plot(rounds, team_values, label=f'{team}', color='grey', linewidth=1, alpha=0.5)
-        
         ax.set_xlabel('Média Móvel de 4 Rodadas', fontdict={'fontsize': 10, 'fontweight': 'bold'})
         ax.set_ylabel(metrica_ofensiva, fontdict={'fontsize': 10, 'fontweight': 'bold'})
         ax.tick_params(axis='y', labelsize=9)
@@ -717,8 +796,14 @@ else:
 #Plotting line chart for all clubs highlighting the selected one        
 
         markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_defensiva:}</div>"
+        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Clube vs Demais 19 clubes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
         st.markdown(markdown_1, unsafe_allow_html=True)
         st.markdown("---")
+
+        # Identify the clubs with the maximum and minimum performance in round 16
+        round_16_data = df[df['Order'] == 16]
+        max_team = round_16_data.loc[round_16_data[metrica_defensiva].idxmax()]['Equipe']
+        min_team = round_16_data.loc[round_16_data[metrica_defensiva].idxmin()]['Equipe']
 
         # Plot the data for all teams
         fig, ax = plt.subplots()
@@ -733,9 +818,23 @@ else:
                             textcoords='offset points', color='red', fontsize=9,
                             ha='left', va='center')
 
+
+            elif team == max_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='blue', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='blue', fontsize=9,
+                            ha='left', va='center')
+
+            elif team == min_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='green', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='green', fontsize=9,
+                            ha='left', va='center')
             else:
                 ax.plot(rounds, team_values, label=f'{team}', color='grey', linewidth=1, alpha=0.5)
-        
+
         ax.set_xlabel('Média Móvel de 4 Rodadas', fontdict={'fontsize': 10, 'fontweight': 'bold'})
         ax.set_ylabel(metrica_defensiva, fontdict={'fontsize': 10, 'fontweight': 'bold'})
         ax.tick_params(axis='y', labelsize=9)
@@ -816,8 +915,14 @@ else:
 #Plotting line chart for all clubs highlighting the selected one        
 
         markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_finalização:}</div>"
+        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Clube vs Demais 19 clubes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
         st.markdown(markdown_1, unsafe_allow_html=True)
         st.markdown("---")
+
+        # Identify the clubs with the maximum and minimum performance in round 16
+        round_16_data = df[df['Order'] == 16]
+        max_team = round_16_data.loc[round_16_data[metrica_finalização].idxmax()]['Equipe']
+        min_team = round_16_data.loc[round_16_data[metrica_finalização].idxmin()]['Equipe']
 
         # Plot the data for all teams
         fig, ax = plt.subplots()
@@ -832,8 +937,22 @@ else:
                             textcoords='offset points', color='red', fontsize=9,
                             ha='left', va='center')
 
+            elif team == max_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='blue', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='blue', fontsize=9,
+                            ha='left', va='center')
+
+            elif team == min_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='green', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='green', fontsize=9,
+                            ha='left', va='center')
             else:
                 ax.plot(rounds, team_values, label=f'{team}', color='grey', linewidth=1, alpha=0.5)
+
         
         ax.set_xlabel('Média Móvel de 4 Rodadas', fontdict={'fontsize': 10, 'fontweight': 'bold'})
         ax.set_ylabel(metrica_finalização, fontdict={'fontsize': 10, 'fontweight': 'bold'})
@@ -920,8 +1039,14 @@ else:
 #Plotting line chart for all clubs highlighting the selected one        
 
         markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_construção:}</div>"
+        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Clube vs Demais 19 clubes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
         st.markdown(markdown_1, unsafe_allow_html=True)
         st.markdown("---")
+
+        # Identify the clubs with the maximum and minimum performance in round 16
+        round_16_data = df[df['Order'] == 16]
+        max_team = round_16_data.loc[round_16_data[metrica_construção].idxmax()]['Equipe']
+        min_team = round_16_data.loc[round_16_data[metrica_construção].idxmin()]['Equipe']
 
         # Plot the data for all teams
         fig, ax = plt.subplots()
@@ -936,9 +1061,22 @@ else:
                             textcoords='offset points', color='red', fontsize=9,
                             ha='left', va='center')
 
+            elif team == max_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='blue', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='blue', fontsize=9,
+                            ha='left', va='center')
+
+            elif team == min_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='green', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='green', fontsize=9,
+                            ha='left', va='center')
             else:
                 ax.plot(rounds, team_values, label=f'{team}', color='grey', linewidth=1, alpha=0.5)
-        
+
         ax.set_xlabel('Média Móvel de 4 Rodadas', fontdict={'fontsize': 10, 'fontweight': 'bold'})
         ax.set_ylabel(metrica_construção, fontdict={'fontsize': 10, 'fontweight': 'bold'})
         ax.tick_params(axis='y', labelsize=9)
@@ -1023,8 +1161,14 @@ else:
 #Plotting line chart for all clubs highlighting the selected one        
 
         markdown_1 = f"<div style='text-align:center;  color: black; color: red; font-weight: bold; font-size:{fontsize}px'>{metrica_ofensiva:}</div>"
+        st.markdown("<h4 style='text-align: center;  color: black;'>Análise Comparativa Clube vs Demais 19 clubes (2024)<br>Média móvel de 4 jogos</b></h4>", unsafe_allow_html=True)
         st.markdown(markdown_1, unsafe_allow_html=True)
         st.markdown("---")
+
+        # Identify the clubs with the maximum and minimum performance in round 16
+        round_16_data = df[df['Order'] == 16]
+        max_team = round_16_data.loc[round_16_data[metrica_ofensiva].idxmax()]['Equipe']
+        min_team = round_16_data.loc[round_16_data[metrica_ofensiva].idxmin()]['Equipe']
 
         # Plot the data for all teams
         fig, ax = plt.subplots()
@@ -1039,6 +1183,19 @@ else:
                             textcoords='offset points', color='red', fontsize=9,
                             ha='left', va='center')
 
+            elif team == max_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='blue', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='blue', fontsize=9,
+                            ha='left', va='center')
+
+            elif team == min_team:
+                ax.plot(rounds, team_values, label=f'{team}', color='green', linewidth=1.0)
+                # Annotate the team name at the end of the line
+                ax.annotate(f'{team}', xy=(rounds[-1], team_values[-1]), xytext=(5, 0),
+                            textcoords='offset points', color='green', fontsize=9,
+                            ha='left', va='center')
             else:
                 ax.plot(rounds, team_values, label=f'{team}', color='grey', linewidth=1, alpha=0.5)
         

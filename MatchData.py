@@ -36,13 +36,21 @@ metricas_ofensivas = ["Corridas", "Cruzamentos", "Cruzamentos certos", "Deep com
                       "Deep completed passes", "Duelos ofensivos", "Duelos ofensivos ganhos", 
                       "Entradas na área de pênalti", "Pisadas na área"]
 
-metricas_construção = ["Passes", "Posse %", "Passes frontais", "Passes frontais certos", 
-                       "Passes longos", "Passes longos certos", "Passes terço final", 
-                       "Passes terço final certos", "Passes progressivos", 
-                       "Passes progressivos certos", "Passes inteligentes", 
-                       "Passes inteligentes certos", "Velocidade do jogo", 
-                       "Passes médios p/ posse", "% Passes longos", "Comprimento médio do passe", 
+#metricas_construção = ["Passes", "Posse %", "Passes frontais", "Passes frontais certos", 
+#                       "Passes longos", "Passes longos certos", "Passes terço final", 
+#                       "Passes terço final certos", "Passes progressivos", 
+#                       "Passes progressivos certos", "Passes inteligentes", 
+#                       "Passes inteligentes certos", "Velocidade do jogo", 
+#                       "Passes médios p/ posse", "% Passes longos", "Comprimento médio do passe", 
+#                       "Perdas"]
+
+metricas_construção = ["Passes", "Posse %", "Passes frontais", 
+                       "Passes longos", "Passes terço final", 
+                       "Passes progressivos", "Passes inteligentes", 
+                       "Velocidade do jogo", "Passes médios p/ posse", 
+                       "% Passes longos", "Comprimento médio do passe", 
                        "Perdas"]
+
 
 st.markdown("<h4 style='text-align: center;  color: black;'>Desempenho Esportivo dos Clubes da Série A<br>2024 </b></h4>", unsafe_allow_html=True)
 st.markdown("<h6 style='text-align: center;  color: black;'>app by @JAmerico1898 </b></h6>", unsafe_allow_html=True)
